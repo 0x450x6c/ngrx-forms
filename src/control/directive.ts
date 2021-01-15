@@ -55,11 +55,13 @@ class ControlValueAccessorAdapter implements FormViewAdapter {
   // tslint:disable-next-line:directive-selector
   selector: ':not([ngrxFormsAction])[ngrxFormControlState]',
 })
-export class NgrxFormControlDirective<TStateValue extends FormControlValueTypes, TViewValue = TStateValue> implements AfterViewInit, OnInit {
+export class NgrxFormControlDirective<TStateValue, TViewValue = TStateValue> implements AfterViewInit, OnInit {
   private isInitialized = false;
   private focusTrackingIsEnabled = false;
 
-  @Input() set ngrxFormControlState(newState: FormControlState<TStateValue>) {
+  @Input() set ngrxFormControlState(
+    newState: TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never
+  ) {
     if (!newState) {
       throw new Error('The control state must not be undefined!');
     }
@@ -92,7 +94,7 @@ export class NgrxFormControlDirective<TStateValue extends FormControlValueTypes,
     return this.state && this.state.isFocused ? '' : null;
   }
 
-  state: FormControlState<TStateValue>;
+  state: TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never;
 
   private viewAdapter: FormViewAdapter;
 
@@ -128,7 +130,10 @@ export class NgrxFormControlDirective<TStateValue extends FormControlValueTypes,
       : selectViewAdapter(viewAdapters);
   }
 
-  updateViewIfControlIdChanged(newState: FormControlState<TStateValue>, oldState: FormControlState<TStateValue> | undefined) {
+  updateViewIfControlIdChanged(
+    newState: TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never,
+    oldState: (TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never) | undefined
+  ) {
     if (oldState && newState.id === oldState.id) {
       return;
     }
@@ -141,7 +146,10 @@ export class NgrxFormControlDirective<TStateValue extends FormControlValueTypes,
     }
   }
 
-  updateViewIfValueChanged(newState: FormControlState<TStateValue>, _: FormControlState<TStateValue> | undefined) {
+  updateViewIfValueChanged(
+    newState: TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never,
+    _: (TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never) | undefined
+  ) {
     if (newState.value === this.stateValue) {
       return;
     }
@@ -151,7 +159,10 @@ export class NgrxFormControlDirective<TStateValue extends FormControlValueTypes,
     this.viewAdapter.setViewValue(this.viewValue);
   }
 
-  updateViewIfIsDisabledChanged(newState: FormControlState<TStateValue>, oldState: FormControlState<TStateValue> | undefined) {
+  updateViewIfIsDisabledChanged(
+    newState: TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never,
+    oldState: (TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never) | undefined
+  ) {
     if (!this.viewAdapter.setIsDisabled) {
       return;
     }
@@ -163,7 +174,10 @@ export class NgrxFormControlDirective<TStateValue extends FormControlValueTypes,
     this.viewAdapter.setIsDisabled(newState.isDisabled);
   }
 
-  updateViewIfIsFocusedChanged(newState: FormControlState<TStateValue>, oldState: FormControlState<TStateValue> | undefined) {
+  updateViewIfIsFocusedChanged(
+    newState: TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never,
+    oldState: (TStateValue extends FormControlValueTypes ?  FormControlState<TStateValue> : never) | undefined
+  ) {
     if (!this.focusTrackingIsEnabled) {
       return;
     }

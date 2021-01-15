@@ -2,7 +2,7 @@ import { Directive, HostListener, Inject, Input, OnInit, Optional } from '@angul
 import { ActionsSubject } from '@ngrx/store';
 
 import { Actions, MarkAsSubmittedAction } from '../actions';
-import { FormGroupState } from '../state';
+import { FormGroupState, KeyValue } from '../state';
 
 // this interface just exists to prevent a direct reference to
 // `Event` in our code, which otherwise causes issues in NativeScript
@@ -13,9 +13,9 @@ interface CustomEvent extends Event { }
   // tslint:disable-next-line:directive-selector
   selector: 'form:not([ngrxFormsAction])[ngrxFormState]',
 })
-export class NgrxFormDirective<TValue extends { [key: string]: any }> implements OnInit {
+export class NgrxFormDirective<TValue> implements OnInit {
   // tslint:disable-next-line:no-input-rename
-  @Input('ngrxFormState') state: FormGroupState<TValue>;
+  @Input('ngrxFormState') state: TValue extends KeyValue ? FormGroupState<TValue> : never;
 
   constructor(
     @Optional() @Inject(ActionsSubject) private actionsSubject: ActionsSubject | null
@@ -23,7 +23,9 @@ export class NgrxFormDirective<TValue extends { [key: string]: any }> implements
     this.actionsSubject = actionsSubject;
   }
 
-  protected dispatchAction(action: Actions<TValue>) {
+  protected dispatchAction(
+    action: Actions<TValue extends KeyValue ? TValue : never>
+  ) {
     if (this.actionsSubject !== null) {
       this.actionsSubject.next(action);
     } else {
